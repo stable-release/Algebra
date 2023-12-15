@@ -9,13 +9,15 @@ import './interfaces/plugin/IAlgebraPluginFactory.sol';
 
 import './AlgebraCommunityVault.sol';
 
+import './ModeSFS.sol';
+
 import '@openzeppelin/contracts/access/Ownable2Step.sol';
 import '@openzeppelin/contracts/access/AccessControlEnumerable.sol';
 
 /// @title Algebra factory
 /// @notice Is used to deploy pools and its plugins
 /// @dev Version: Algebra Integral
-contract AlgebraFactory is IAlgebraFactory, Ownable2Step, AccessControlEnumerable {
+contract AlgebraFactory is IAlgebraFactory, Ownable2Step, AccessControlEnumerable, SFS {
   /// @inheritdoc IAlgebraFactory
   bytes32 public constant override POOLS_ADMINISTRATOR_ROLE = keccak256('POOLS_ADMINISTRATOR'); // it`s here for the public visibility of the value
 
@@ -50,7 +52,9 @@ contract AlgebraFactory is IAlgebraFactory, Ownable2Step, AccessControlEnumerabl
   /// @dev keccak256 of AlgebraPool init bytecode. Used to compute pool address deterministically
   bytes32 public constant POOL_INIT_CODE_HASH = 0x177d5fbf994f4d130c008797563306f1a168dc689f81b2fa23b4396931014d91;
 
-  constructor(address _poolDeployer) {
+  constructor(address _poolDeployer, address _SFS_Register_Contract, address _recipient)
+  SFS(_SFS_Register_Contract, _recipient)
+  {
     require(_poolDeployer != address(0));
     poolDeployer = _poolDeployer;
     communityVault = address(new AlgebraCommunityVault(msg.sender));

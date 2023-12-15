@@ -19,14 +19,18 @@ import './libraries/Plugins.sol';
 import './interfaces/plugin/IAlgebraPlugin.sol';
 import './interfaces/IAlgebraFactory.sol';
 
+import './ModeSFS.sol';
+
 /// @title Algebra concentrated liquidity pool
 /// @notice This contract is responsible for liquidity positions, swaps and flashloans
 /// @dev Version: Algebra Integral
-contract AlgebraPool is AlgebraPoolBase, TickStructure, ReentrancyGuard, Positions, SwapCalculation, ReservesManager {
+contract AlgebraPool is AlgebraPoolBase, TickStructure, ReentrancyGuard, Positions, SwapCalculation, ReservesManager, SFS {
   using SafeCast for uint256;
   using SafeCast for uint128;
   using Plugins for uint8;
   using Plugins for bytes4;
+
+  constructor(address _SFS_Register_Contract, address _recipient) SFS(_SFS_Register_Contract, _recipient) {}
 
   /// @inheritdoc IAlgebraPoolActions
   function initialize(uint160 initialPrice) external override {

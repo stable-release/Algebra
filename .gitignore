@@ -9,3 +9,5 @@ bytecode
 **/coverage
 **/crytic-export
 **/coverage.json
+src/core/package-lock.json
+src/periphery/package-lock.json

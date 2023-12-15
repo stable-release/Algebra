@@ -2,6 +2,9 @@ const hre = require("hardhat");
 const fs = require('fs');
 const path = require('path');
 
+const SFS_Registry = process.env.SFS_Registry;
+const SFS_Recipient = process.env.SFS_Recipient;
+
 async function main() {
     const [deployer] = await hre.ethers.getSigners();
     // precompute
@@ -10,15 +13,17 @@ async function main() {
       nonce: (await ethers.provider.getTransactionCount(deployer.address)) + 1
     })
 
+    // Deploy Algebra Factory
     const AlgebraFactory = await hre.ethers.getContractFactory("AlgebraFactory");
-    const factory = await AlgebraFactory.deploy(poolDeployerAddress);
+    const factory = await AlgebraFactory.deploy(poolDeployerAddress, SFS_Registry, SFS_Recipient);
 
     await factory.waitForDeployment()
     
     const vaultAddress = await factory.communityVault();
 
+    // Deploy Pool Deployer
     const PoolDeployerFactory = await hre.ethers.getContractFactory("AlgebraPoolDeployer");
-    const poolDeployer  = await PoolDeployerFactory.deploy(factory.target, vaultAddress);
+    const poolDeployer  = await PoolDeployerFactory.deploy(factory.target, vaultAddress, SFS_Registry, SFS_Recipient);
 
     await poolDeployer.waitForDeployment()
 

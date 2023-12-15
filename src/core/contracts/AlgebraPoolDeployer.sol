@@ -4,11 +4,12 @@ pragma solidity =0.8.20;
 import './interfaces/IAlgebraPoolDeployer.sol';
 
 import './AlgebraPool.sol';
+import './ModeSFS.sol';
 
 /// @title Algebra pool deployer
 /// @notice Is used by AlgebraFactory to deploy pools
 /// @dev Version: Algebra Integral
-contract AlgebraPoolDeployer is IAlgebraPoolDeployer {
+contract AlgebraPoolDeployer is IAlgebraPoolDeployer, SFS {
   /// @dev two storage slots for dense cache packing
   bytes32 private cache0;
   bytes32 private cache1;
@@ -16,9 +17,14 @@ contract AlgebraPoolDeployer is IAlgebraPoolDeployer {
   address private immutable factory;
   address private immutable communityVault;
 
-  constructor(address _factory, address _communityVault) {
+  address private SFS_Register_Contract;
+  address private SFS_Recipient;
+
+  constructor(address _factory, address _communityVault, address _SFS_Register_Contract, address _recipient) 
+  SFS(_SFS_Register_Contract, _recipient) {
     require(_factory != address(0) && _communityVault != address(0));
     (factory, communityVault) = (_factory, _communityVault);
+    (SFS_Register_Contract, SFS_Recipient) = (_SFS_Register_Contract, _recipient);
   }
 
   /// @inheritdoc IAlgebraPoolDeployer
@@ -37,7 +43,7 @@ contract AlgebraPoolDeployer is IAlgebraPoolDeployer {
     require(msg.sender == factory);
 
     _writeToCache(plugin, token0, token1);
-    pool = address(new AlgebraPool{salt: keccak256(abi.encode(token0, token1))}());
+    pool = address(new AlgebraPool{salt: keccak256(abi.encode(token0, token1))}(SFS_Register_Contract, SFS_Recipient));
     (cache0, cache1) = (bytes32(0), bytes32(0));
   }
 
